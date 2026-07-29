@@ -1,39 +1,68 @@
-- name: Build Archive
-  run: |
-    xcodebuild archive \
-      -workspace ios/FISFIOS.xcworkspace \
-      -scheme FISFIOS \
-      -configuration Release \
-      -archivePath $PWD/build/FISFIOS.xcarchive \
-      CODE_SIGNING_ALLOWED=NO
+name: iOS Build
 
-- name: Export IPA
-  run: |
-    mkdir -p build/export
-    cat > exportOptions.plist <<EOF
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-      <key>method</key>
-      <string>development</string>
-      <key>signingStyle</key>
-      <string>manual</string>
-      <key>stripSwiftSymbols</key>
-      <true/>
-      <key>compileBitcode</key>
-      <false/>
-    </dict>
-    </plist>
-    EOF
+on:
+  workflow_dispatch:
 
-    xcodebuild -exportArchive \
-      -archivePath $PWD/build/FISFIOS.xcarchive \
-      -exportPath $PWD/build/export \
-      -exportOptionsPlist exportOptions.plist || true
+permissions:
+  contents: read
 
-- name: Upload IPA
-  uses: actions/upload-artifact@v4
-  with:
-    name: ios-build
-    path: build
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+
+      - name: Build Archive
+        run: |
+          xcodebuild archive \
+            -workspace ios/FISFIOS.xcworkspace \
+            -scheme FISFIOS \
+            -configuration Release \
+            -archivePath $PWD/build/FISFIOS.xcarchive \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Export IPA
+        run: |
+          mkdir -p build/export
+          cat > exportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>development</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>stripSwiftSymbols</key>
+            <true/>
+            <key>compileBitcode</key>
+            <false/>
+          </dict>
+          </plist>
+          EOF
+
+          xcodebuild -exportArchive \
+            -archivePath $PWD/build/FISFIOS.xcarchive \
+            -exportPath $PWD/build/export \
+            -exportOptionsPlist exportOptions.plist || true
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: build
