@@ -17,7 +17,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: 22
 
       - name: Install Dependencies
         run: npm install
@@ -35,10 +35,35 @@ jobs:
             -scheme FISFIOS \
             -configuration Release \
             -archivePath build/FISFIOS.xcarchive \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
-      - name: Upload Archive
+      - name: Export IPA (Development)
+        run: |
+          mkdir -p build
+          xcodebuild -exportArchive \
+            -archivePath build/FISFIOS.xcarchive \
+            -exportPath build/FISFIOS.ipa \
+            -exportOptionsPlist <(cat <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>development</string>
+            <key>signingStyle</key>
+            <string>automatic</string>
+            <key>compileBitcode</key>
+            <false/>
+          </dict>
+          </plist>
+          EOF
+          ) \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO
+
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: ios-archive
-          path: build/FISFIOS.xcarchive
+          name: ios-ipa
+          path: build/FISFIOS.ipa
