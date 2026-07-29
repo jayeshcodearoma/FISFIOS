@@ -36,33 +36,8 @@ jobs:
             -archivePath $PWD/build/FISFIOS.xcarchive \
             CODE_SIGNING_ALLOWED=NO
 
-      - name: Export IPA
-        run: |
-          mkdir -p build/export
-          cat > exportOptions.plist <<EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>development</string>
-            <key>signingStyle</key>
-            <string>manual</string>
-            <key>stripSwiftSymbols</key>
-            <true/>
-            <key>compileBitcode</key>
-            <false/>
-          </dict>
-          </plist>
-          EOF
-
-          xcodebuild -exportArchive \
-            -archivePath $PWD/build/FISFIOS.xcarchive \
-            -exportPath $PWD/build/export \
-            -exportOptionsPlist exportOptions.plist || true
-
-      - name: Upload IPA
+      - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
-          name: ios-build
+          name: ios-archive
           path: build
