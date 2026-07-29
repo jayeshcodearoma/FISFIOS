@@ -38,13 +38,9 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Export IPA (Development)
+      - name: Create Export Options
         run: |
-          mkdir -p build
-          xcodebuild -exportArchive \
-            -archivePath build/FISFIOS.xcarchive \
-            -exportPath build/FISFIOS.ipa \
-            -exportOptionsPlist <(cat <<EOF
+          cat > exportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -58,9 +54,15 @@ jobs:
           </dict>
           </plist>
           EOF
-          ) \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGNING_REQUIRED=NO
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/FISFIOS.xcarchive \
+            -exportPath build/FISFIOS.ipa \
+            -exportOptionsPlist exportOptions.plist \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
