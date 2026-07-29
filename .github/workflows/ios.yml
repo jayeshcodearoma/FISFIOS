@@ -14,20 +14,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install Dependencies
+        run: npm install
 
       - name: Install CocoaPods
         run: |
           cd ios
           pod install
 
-      - name: Build iOS (No Code Signing)
+      - name: Build iOS
         run: |
           xcodebuild \
             -workspace ios/FISFIOS.xcworkspace \
@@ -35,3 +35,14 @@ jobs:
             -sdk iphonesimulator \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Archive Build Folder
+        run: |
+          mkdir output
+          cp -R ~/Library/Developer/Xcode/DerivedData/*/Build/Products/Release-iphonesimulator/*.app output/ || true
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: output
