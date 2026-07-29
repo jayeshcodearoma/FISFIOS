@@ -3,7 +3,6 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: macos-latest
@@ -13,7 +12,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 22
       - name: Install Dependencies
         run: npm install
       - name: Install CocoaPods
@@ -23,16 +22,14 @@ jobs:
       - name: Build Archive
         run: |
           mkdir -p build
-          xcodebuild \
-
+          xcodebuild archive \
             -workspace ios/FISFIOS.xcworkspace \
             -scheme FISFIOS \
-            -sdk iphonesimulator \
             -configuration Release \
+            -archivePath build/FISFIOS.xcarchive \
             CODE_SIGNING_ALLOWED=NO
       - name: Upload Archive
         uses: actions/upload-artifact@v4
         with:
           name: ios-archive
           path: build/FISFIOS.xcarchive
-
