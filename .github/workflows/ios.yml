@@ -1,34 +1,38 @@
 name: iOS Build
-
 on:
   workflow_dispatch:
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
-
-      - run: npm install
-
-      - run: |
+      - name: Install Dependencies
+        run: npm install
+      - name: Install CocoaPods
+        run: |
           cd ios
           pod install
-
-      - run: |
+      - name: Build Archive
+        run: |
+          mkdir -p build
           xcodebuild \
+
             -workspace ios/FISFIOS.xcworkspace \
             -scheme FISFIOS \
             -sdk iphonesimulator \
             -configuration Release \
             CODE_SIGNING_ALLOWED=NO
-
-      - uses: actions/upload-artifact@v4
+      - name: Upload Archive
+        uses: actions/upload-artifact@v4
         with:
-          name: ios-build
-          path: ~/Library/Developer/Xcode/DerivedData
+          name: ios-archive
+          path: build/FISFIOS.xcarchive
+
