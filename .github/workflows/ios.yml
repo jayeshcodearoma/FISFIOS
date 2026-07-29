@@ -3,6 +3,10 @@ name: iOS Build
 on:
   workflow_dispatch:
 
+# Environment variable to force actions to use Node.js 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: read
 
@@ -38,7 +42,7 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
 
-      - name: Create Export Options
+      - name: Create Export Options Plist
         run: |
           cat > exportOptions.plist << EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -51,6 +55,8 @@ jobs:
             <string>automatic</string>
             <key>compileBitcode</key>
             <false/>
+            <key>teamID</key>
+            <string>YOUR_TEAM_ID</string>
           </dict>
           </plist>
           EOF
