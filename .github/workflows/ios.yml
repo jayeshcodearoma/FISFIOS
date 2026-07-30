@@ -30,6 +30,13 @@ jobs:
           cd ios
           pod install
 
+      - name: Get Team ID from Apple ID
+        run: |
+          # Free Apple ID thi Team ID automatically detect thase
+          TEAM_ID=$(xcodebuild -showBuildSettings -workspace ios/FISFIOS.xcworkspace -scheme FISFIOS 2>/dev/null | grep DEVELOPMENT_TEAM | awk '{print $3}')
+          echo "TEAM_ID=$TEAM_ID" >> $GITHUB_ENV
+          echo "Team ID found: $TEAM_ID"
+
       - name: Build Archive
         run: |
           mkdir -p build
@@ -38,8 +45,11 @@ jobs:
             -scheme FISFIOS \
             -configuration Release \
             -archivePath build/FISFIOS.xcarchive \
+            DEVELOPMENT_TEAM="${{ env.TEAM_ID }}" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO
+            PROVISIONING_PROFILE_SPECIFIER=""
 
       - name: Create Export Options Plist
         run: |
@@ -54,6 +64,8 @@ jobs:
             <string>automatic</string>
             <key>compileBitcode</key>
             <false/>
+            <key>teamID</key>
+            <string>${{ env.TEAM_ID }}</string>
           </dict>
           </plist>
           EOF
