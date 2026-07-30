@@ -39,8 +39,7 @@ jobs:
             -configuration Release \
             -archivePath build/FISFIOS.xcarchive \
             CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            DEVELOPMENT_TEAM=""
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Create Export Options Plist
         run: |
@@ -50,9 +49,9 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>method</key>
-            <string>debugging</string>
+            <string>development</string>
             <key>signingStyle</key>
-            <string>manual</string>
+            <string>automatic</string>
             <key>compileBitcode</key>
             <false/>
           </dict>
